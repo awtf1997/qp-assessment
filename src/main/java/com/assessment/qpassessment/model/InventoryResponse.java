@@ -2,16 +2,16 @@ package com.assessment.qpassessment.model;
 
 public class InventoryResponse<T> {
 
-    private Integer responseCode;
+    private Boolean isSuccess;
     private String responseMessage;
     private T responseBody;
 
-    public Integer getResponseCode() {
-        return responseCode;
+    public Boolean getSuccess() {
+        return isSuccess;
     }
 
-    public void setResponseCode(Integer responseCode) {
-        this.responseCode = responseCode;
+    public void setSuccess(Boolean success) {
+        isSuccess = success;
     }
 
     public String getResponseMessage() {

@@ -4,13 +4,13 @@ import java.util.List;
 
 public class Order {
 
-    List<Item> items;
+    List<ItemDetails> items;
 
-    public List<Item> getItems() {
+    public List<ItemDetails> getItems() {
         return items;
     }
 
-    public void setItems(List<Item> items) {
+    public void setItems(List<ItemDetails> items) {
         this.items = items;
     }
 }

@@ -1,10 +1,23 @@
-package com.assessment.qpassessment.model;
+package com.assessment.qpassessment.entity;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "Items")
 public class Item {
 
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
+    @Column(name = "NAME")
     private String name;
+
+    @Column(name = "PRICE")
     private Double price;
+
+    @Column(name = "QUANTITY")
     private Integer quantity;
 
     public Integer getId() {
