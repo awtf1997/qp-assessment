@@ -2,9 +2,18 @@ package com.assessment.qpassessment.model;
 
 import java.util.List;
 
-public class Order {
+public class OrderDetails {
 
-    List<ItemDetails> items;
+    private Integer id;
+    private List<ItemDetails> items;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public List<ItemDetails> getItems() {
         return items;

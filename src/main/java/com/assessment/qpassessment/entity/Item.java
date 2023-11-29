@@ -3,7 +3,7 @@ package com.assessment.qpassessment.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Items")
+@Table(name = "ITEMS")
 public class Item {
 
     @Id
