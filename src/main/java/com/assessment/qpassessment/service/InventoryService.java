@@ -9,12 +9,12 @@ import java.util.List;
 
 public interface InventoryService {
 
-    public InventoryResponse<List<Item>> getAllItems(UserRole role);
+    public InventoryResponse<List<Item>> getAllItems(Integer userId);
 
-    public InventoryResponse<Item> addAnItem(UserRole role, ItemDetails itemDetails);
+    public InventoryResponse<Item> addAnItem(Integer userId, ItemDetails itemDetails);
 
-    public InventoryResponse<Item> updateAnItem(UserRole role, ItemDetails itemDetails);
+    public InventoryResponse<Item> updateAnItem(Integer userId, ItemDetails itemDetails);
 
-    public InventoryResponse<Item> deleteAnItem(UserRole role, Integer id);
+    public InventoryResponse<Item> deleteAnItem(Integer userId, Integer id);
 
 }

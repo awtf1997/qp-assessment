@@ -1,6 +1,6 @@
 package com.assessment.qpassessment.utils;
 
-public class ResponseMessages {
+public class InventoryResponseMessages {
 
     public static String FOUND_ALL_ITEMS = "Found All Items";
 

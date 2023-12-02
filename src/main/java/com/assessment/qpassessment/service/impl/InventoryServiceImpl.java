@@ -1,12 +1,16 @@
 package com.assessment.qpassessment.service.impl;
 
 import com.assessment.qpassessment.entity.Item;
+import com.assessment.qpassessment.entity.User;
 import com.assessment.qpassessment.model.InventoryResponse;
 import com.assessment.qpassessment.model.ItemDetails;
+import com.assessment.qpassessment.model.UserResponse;
 import com.assessment.qpassessment.model.UserRole;
 import com.assessment.qpassessment.repository.InventoryRepository;
+import com.assessment.qpassessment.repository.UserRepository;
 import com.assessment.qpassessment.service.InventoryService;
-import com.assessment.qpassessment.utils.ResponseMessages;
+import com.assessment.qpassessment.service.UserService;
+import com.assessment.qpassessment.utils.InventoryResponseMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,20 +23,30 @@ public class InventoryServiceImpl implements InventoryService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Override
-    public InventoryResponse<List<Item>> getAllItems(UserRole role) {
+    public InventoryResponse<List<Item>> getAllItems(Integer userId) {
         List<Item> items = null;
         InventoryResponse<List<Item>> resp = new InventoryResponse<>();
+        UserResponse<User> userResponse = userService.getUser(userId);
         try {
-            if (role.equals(UserRole.ADMIN)) {
-                items = inventoryRepository.findAll();
-                resp.setSuccess(true);
-                resp.setResponseMessage(ResponseMessages.FOUND_ALL_ITEMS);
-            }
-            else if (role.equals(UserRole.ADMIN)) {
-                items = inventoryRepository.findByQuantityGreaterThan(0);
-                resp.setSuccess(true);
-                resp.setResponseMessage(ResponseMessages.FOUND_ALL_AVAILABLE_ITEMS);
+            UserRole role = null;
+            if (userResponse.getSuccess()) {
+                role = userResponse.getResponseBody().getRole();
+                if (role.equals(UserRole.ADMIN)) {
+                    items = inventoryRepository.findAll();
+                    resp.setSuccess(true);
+                    resp.setResponseMessage(InventoryResponseMessages.FOUND_ALL_ITEMS);
+                } else if (role.equals(UserRole.USER)) {
+                    items = inventoryRepository.findByQuantityGreaterThan(0);
+                    resp.setSuccess(true);
+                    resp.setResponseMessage(InventoryResponseMessages.FOUND_ALL_AVAILABLE_ITEMS);
+                }
+            } else {
+                resp.setSuccess(false);
+                resp.setResponseMessage(userResponse.getResponseMessage());
             }
         } catch (Exception e) {
             resp.setSuccess(false);
@@ -43,59 +57,75 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryResponse<Item> addAnItem(UserRole role, ItemDetails itemDetails) {
+    public InventoryResponse<Item> addAnItem(Integer userId, ItemDetails itemDetails) {
         Item item = null;
         InventoryResponse<Item> resp = new InventoryResponse<>();
+        UserResponse<User> userResponse = userService.getUser(userId);
         try {
-            if (!role.equals(UserRole.ADMIN)) {
-                resp.setSuccess(false);
-                resp.setResponseMessage(ResponseMessages.ADMIN_ONLY_ALLOWED);
-            } else if (itemDetails.getId() != null) {
-                resp.setSuccess(false);
-                resp.setResponseMessage(ResponseMessages.ID_PREASSIGNED);
-            } else {
-                item = new Item();
-                item.setName(itemDetails.getName());
-                item.setPrice(itemDetails.getPrice());
-                item.setQuantity(itemDetails.getQuantity());
-                inventoryRepository.save(item);
-                resp.setSuccess(true);
-                resp.setResponseMessage(ResponseMessages.ITEM_ADDED);
-            }
-        } catch (Exception e) {
-            resp.setSuccess(false);
-            resp.setResponseMessage("Exception Encountered : " + e.getMessage());
-        }
-        resp.setResponseBody(item);
-        return resp;
-
-    }
-
-    @Override
-    public InventoryResponse<Item> updateAnItem(UserRole role, ItemDetails itemDetails) {
-        Item item = null;
-        InventoryResponse<Item> resp = new InventoryResponse<>();
-        try {
-            if (!role.equals(UserRole.ADMIN)) {
-                resp.setSuccess(false);
-                resp.setResponseMessage(ResponseMessages.ADMIN_ONLY_ALLOWED);
-            } else if (itemDetails.getId() == null) {
-                resp.setSuccess(false);
-                resp.setResponseMessage(ResponseMessages.ID_MISSING);
-            } else {
-                Optional<Item> itemOptional = inventoryRepository.findById(itemDetails.getId());
-                if (itemOptional.isEmpty()) {
+            UserRole role = null;
+            if (userResponse.getSuccess()) {
+                role = userResponse.getResponseBody().getRole();
+                if (!role.equals(UserRole.ADMIN)) {
                     resp.setSuccess(false);
-                    resp.setResponseMessage(ResponseMessages.INVALID_ID);
+                    resp.setResponseMessage(InventoryResponseMessages.ADMIN_ONLY_ALLOWED);
+                } else if (itemDetails.getId() != null) {
+                    resp.setSuccess(false);
+                    resp.setResponseMessage(InventoryResponseMessages.ID_PREASSIGNED);
                 } else {
-                    item = itemOptional.get();
+                    item = new Item();
                     item.setName(itemDetails.getName());
                     item.setPrice(itemDetails.getPrice());
-                    item.setQuantity(item.getQuantity());
+                    item.setQuantity(itemDetails.getQuantity());
                     inventoryRepository.save(item);
                     resp.setSuccess(true);
-                    resp.setResponseMessage(ResponseMessages.ITEM_UPDATED);
+                    resp.setResponseMessage(InventoryResponseMessages.ITEM_ADDED);
                 }
+            } else {
+                resp.setSuccess(false);
+                resp.setResponseMessage(userResponse.getResponseMessage());
+            }
+        } catch (Exception e) {
+            resp.setSuccess(false);
+            resp.setResponseMessage("Exception Encountered : " + e.getMessage());
+        }
+        resp.setResponseBody(item);
+        return resp;
+
+    }
+
+    @Override
+    public InventoryResponse<Item> updateAnItem(Integer userId, ItemDetails itemDetails) {
+        Item item = null;
+        InventoryResponse<Item> resp = new InventoryResponse<>();
+        UserResponse<User> userResponse = userService.getUser(userId);
+        try {
+            UserRole role = null;
+            if (userResponse.getSuccess()) {
+                role = userResponse.getResponseBody().getRole();
+                if (!role.equals(UserRole.ADMIN)) {
+                    resp.setSuccess(false);
+                    resp.setResponseMessage(InventoryResponseMessages.ADMIN_ONLY_ALLOWED);
+                } else if (itemDetails.getId() == null) {
+                    resp.setSuccess(false);
+                    resp.setResponseMessage(InventoryResponseMessages.ID_MISSING);
+                } else {
+                    Optional<Item> itemOptional = inventoryRepository.findById(itemDetails.getId());
+                    if (itemOptional.isEmpty()) {
+                        resp.setSuccess(false);
+                        resp.setResponseMessage(InventoryResponseMessages.INVALID_ID);
+                    } else {
+                        item = itemOptional.get();
+                        item.setName(itemDetails.getName());
+                        item.setPrice(itemDetails.getPrice());
+                        item.setQuantity(item.getQuantity());
+                        inventoryRepository.save(item);
+                        resp.setSuccess(true);
+                        resp.setResponseMessage(InventoryResponseMessages.ITEM_UPDATED);
+                    }
+                }
+            } else {
+                resp.setSuccess(false);
+                resp.setResponseMessage(userResponse.getResponseMessage());
             }
         } catch (Exception e) {
             resp.setSuccess(false);
@@ -106,24 +136,32 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryResponse<Item> deleteAnItem(UserRole role, Integer id) {
+    public InventoryResponse<Item> deleteAnItem(Integer userId, Integer id) {
         Item item = null;
         InventoryResponse<Item> resp = new InventoryResponse<>();
+        UserResponse<User> userResponse = userService.getUser(userId);
         try {
-            if (!role.equals(UserRole.ADMIN)) {
-                resp.setSuccess(false);
-                resp.setResponseMessage(ResponseMessages.ADMIN_ONLY_ALLOWED);
-            } else {
-                Optional<Item> itemOptional = inventoryRepository.findById(id);
-                if (itemOptional.isEmpty()) {
+            UserRole role = null;
+            if (userResponse.getSuccess()) {
+                role = userResponse.getResponseBody().getRole();
+                if (!role.equals(UserRole.ADMIN)) {
                     resp.setSuccess(false);
-                    resp.setResponseMessage(ResponseMessages.INVALID_ID
-                    );
+                    resp.setResponseMessage(InventoryResponseMessages.ADMIN_ONLY_ALLOWED);
                 } else {
-                    inventoryRepository.deleteById(id);
-                    resp.setSuccess(true);
-                    resp.setResponseMessage(ResponseMessages.ITEM_DELETED);
+                    Optional<Item> itemOptional = inventoryRepository.findById(id);
+                    if (itemOptional.isEmpty()) {
+                        resp.setSuccess(false);
+                        resp.setResponseMessage(InventoryResponseMessages.INVALID_ID
+                        );
+                    } else {
+                        inventoryRepository.deleteById(id);
+                        resp.setSuccess(true);
+                        resp.setResponseMessage(InventoryResponseMessages.ITEM_DELETED);
+                    }
                 }
+            } else {
+                resp.setSuccess(false);
+                resp.setResponseMessage(userResponse.getResponseMessage());
             }
         } catch (Exception e) {
             resp.setSuccess(false);

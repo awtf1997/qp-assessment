@@ -7,17 +7,17 @@ import jakarta.persistence.*;
 public class Item {
 
     @Id
-    @Column(name = "ID")
+    @Column(name = "ITEM_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(name = "NAME")
+    @Column(name = "ITEM_NAME")
     private String name;
 
-    @Column(name = "PRICE")
+    @Column(name = "ITEM_PRICE")
     private Double price;
 
-    @Column(name = "QUANTITY")
+    @Column(name = "ITEM_QUANTITY")
     private Integer quantity;
 
     public Integer getId() {

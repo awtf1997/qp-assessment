@@ -7,11 +7,13 @@ import jakarta.persistence.*;
 @Table(name = "ORDERS")
 public class Order {
 
-    @EmbeddedId
-    private OrderIdItemIdCompositeKey id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ID")
+    private Integer id;
 
-    @Column(name = "QUANTITY")
-    private Integer quantity;
+    @Column(name = "USER_ID")
+    private Integer userId;
 
     @Column(name = "PRICE")
     private Double price;
@@ -19,20 +21,20 @@ public class Order {
     @Column(name = "STATUS")
     private OrderStatus status;
 
-    public OrderIdItemIdCompositeKey getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(OrderIdItemIdCompositeKey id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public Double getPrice() {

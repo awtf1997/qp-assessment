@@ -5,6 +5,7 @@ import com.assessment.qpassessment.model.InventoryResponse;
 import com.assessment.qpassessment.model.ItemDetails;
 import com.assessment.qpassessment.model.UserRole;
 import com.assessment.qpassessment.service.InventoryService;
+import com.assessment.qpassessment.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,14 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping(path = "/items")
-    public ResponseEntity<InventoryResponse<List<Item>>> getAllItems(@RequestHeader(name = "USER_ROLE") UserRole role) {
+    public ResponseEntity<InventoryResponse<List<Item>>> getAllItems(@RequestHeader(name = "USER_ID") Integer userId) {
         InventoryResponse<List<Item>> resp = null;
         try {
-            resp = inventoryService.getAllItems(role);
+            resp = inventoryService.getAllItems(userId);
             return ResponseEntity.status(HttpStatus.OK).body(resp);
         } catch (Exception e) {
             resp = new InventoryResponse<List<Item>>();
@@ -36,10 +40,10 @@ public class InventoryController {
 
     @PostMapping(path = "/items")
     public ResponseEntity<InventoryResponse<Item>> addItem(@RequestBody ItemDetails itemDetails,
-                                                           @RequestHeader(name = "USER_ROLE") UserRole role) {
+                                                           @RequestHeader(name = "USER_ID") Integer userId) {
         InventoryResponse<Item> resp = null;
         try {
-            resp = inventoryService.addAnItem(role, itemDetails);
+            resp = inventoryService.addAnItem(userId, itemDetails);
             return ResponseEntity.status(HttpStatus.OK).body(resp);
         } catch (Exception e) {
             resp = new InventoryResponse<Item>();
@@ -52,10 +56,10 @@ public class InventoryController {
 
     @PutMapping(path = "/items")
     public ResponseEntity<InventoryResponse<Item>> updateItem(@RequestBody ItemDetails itemDetails,
-                                                              @RequestHeader(name = "USER_ROLE") UserRole role) {
+                                                              @RequestHeader(name = "USER_ID") Integer userId) {
         InventoryResponse<Item> resp = null;
         try {
-            resp = inventoryService.updateAnItem(role, itemDetails);
+            resp = inventoryService.updateAnItem(userId, itemDetails);
             return ResponseEntity.status(HttpStatus.OK).body(resp);
         } catch (Exception e) {
             resp = new InventoryResponse<Item>();
@@ -68,10 +72,10 @@ public class InventoryController {
 
     @DeleteMapping(path = "/items/{id}")
     public ResponseEntity<InventoryResponse<Item>> deleteItem(@PathVariable(name = "id", required = true) Integer id,
-                                                              @RequestHeader(name = "USER_ROLE") UserRole role) {
+                                                              @RequestHeader(name = "USER_ID") Integer userId) {
         InventoryResponse<Item> resp = null;
         try {
-            resp = inventoryService.deleteAnItem(role, id);
+            resp = inventoryService.deleteAnItem(userId, id);
             return ResponseEntity.status(HttpStatus.OK).body(resp);
         } catch (Exception e) {
             resp = new InventoryResponse<Item>();
